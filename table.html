@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Data and Create Table</title>
+    <style>
+        body {
+            margin: 0;
+            margin-top: 20px;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: larger;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            margin-left: 10%;
+            width: 80%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            text-align: center;
+
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        TABEL SAPI
+    </h1>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Created At</th>
+                <th>Nama</th>
+                <th>Berat</th>
+                <th>Jenis Kelamin</th>
+                <th>Tanggal Lahir</th>
+                <th>Harga</th>
+                <th>ID RFID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+    <br>
+    <div class="form">
+        <form id="data-form">
+            <input type="text" name="id_rfid" placeholder="RFID TEMPLATE">
+            <input type="text" name="nama" placeholder="Enter Name">
+            <input type="number" name="berat" placeholder="berat">
+            <input type="number" name="harga" placeholder="harga">
+            <input type="text" name="jenis_kelamin" placeholder="jenis_kelamin">
+            <input type="date" name="tanggal_lahir" id="" placeholder="tanggal_lahir">
+            <button type="submit">Submit</button>
+        </form>
+        <form id="absen">
+            <input type="text" name="uid" placeholder="Enter UID">
+            <button type="submit">Submitt</button>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fetchData = () => {
+                fetch('https://6b966g89-5001.asse.devtunnels.ms/sapi')
+                    .then(response => response.json())
+                    .then(responseData => {
+                        console.log(responseData);
+                        if (responseData.data) {
+                            const tableBody = document.getElementById('table-body');
+
+                            // Clear the table body before appending new data
+                            tableBody.innerHTML = '';
+                            console.log("respon", responseData);
+                            console.log("respon", response);
+                            responseData.data.forEach(item => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                            <td>${item.uid}</td>
+                            <td>${item.created_at}</td>
+                            <td>${item.nama}</td>
+                            <td>${item.berat}</td>
+                            <td>${item.jenis_kelamin}</td>
+                            <td>${item.tanggal_lahir}</td>
+                            
+                            <td>${item.harga}</td>
+                            <td>${item.id_rfid}</td>
+                            <td>${item.status ? 'Active' : 'Inactive'}</td>
+                        `;
+                                tableBody.appendChild(row);
+                            });
+                        } else {
+                            console.error('Error: Unable to fetch data or data format is incorrect.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            };
+
+            // Fetch data initially
+            fetchData();
+
+            // Set interval to fetch data every 4 seconds
+            // setInterval(fetchData, 20000);
+        });
+
+
+
+
+
+        document.getElementById('data-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {
+                id_rfid: formData.get('id_rfid'),
+                nama: formData.get('nama'),
+                tanggal_lahir: formData.get('tanggal_lahir'),
+                berat: formData.get('berat'),
+                harga: formData.get('harga'),
+                jenis_kelamin: formData.get('jenis_kelamin')
+            };
+
+            fetch('https://6b966g89-5001.asse.devtunnels.ms/sapi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+
+
+        document.getElementById('absen').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {
+                uid: formData.get('uid'),
+                nama: formData.get('nama')
+            };
+
+            // Construct the URL with the ID parameter if needed
+            const url = 'https://6b966g89-5001.asse.devtunnels.ms/sapi/' + data.uid;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    // Optionally, you can fetch and update the table with the new data here
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+    </script>
+</body>
+
+</html>
