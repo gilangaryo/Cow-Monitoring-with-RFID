@@ -1,35 +1,62 @@
-const { db, db_cow } = require("../db/index.js");
+const { db, db_cow, db_banned } = require("../db/index.js");
 
-const findCowById = async (id) => {
+// cari sapi by rfid di database 
+const findCow = async (id_rfid) => {
+    const getData = db.collection(db_cow);
+    const snapshot = await getData.where('id_rfid', '==', id_rfid).get();
 
-    const uid = id;
+    if (snapshot.empty) {
+        return null;
+    }
 
-    const getData = db.collection(db_cow).doc(id);
-    const doc = await getData.get();
-
-    return doc.data();
-};
-
-const insertCow = async (cowData) => {
-    const cow = await db.collection(db_cow).add({
-        nama: cowData.nama,
-        id_rfid: cowData.id_rfid,
-        tanggal_lahir: cowData.tanggal_lahir,
-        jenis_kelamin: cowData.jenis_kelamin,
-        berat: cowData.berat,
-        harga: cowData.harga,
-        status: true,
-    });
-    const uid = cow.id;
-    await db.collection(db_cow).doc(uid).update({
-        uid: uid,
-    });
-
+    const cow = snapshot.docs[0].data();
     return cow;
+
 };
 
+// cari sapi terbanned di database 
+const findBanned = async (id_rfid) => {
+    const getData = db.collection(db_banned);
+    const snapshot = await getData.where('id_rfid_banned', '==', id_rfid).get();
 
+    if (snapshot.empty) {
+        return null;
+    }
+
+    const cow = snapshot.docs[0].data();
+    return cow;
+
+};
+
+// tambah sapi banned di database 
+// const addDataBanned = async (id_rfid, status) => {
+
+// }
+
+// update sapi masuk di database 
+const insertCowBanned = async (uid, status, id_rfid) => {
+
+    await db.collection(db_cow).doc(uid).update({
+        status: status,
+    });
+
+    const banTime = Date.now() + 1 * 5 * 1000;
+    const data = {
+        id_rfid_banned: id_rfid,
+        time: banTime,
+        status: status
+    };
+    await db.collection(db_banned).doc(id_rfid).set(data);
+    // await addDataBanned(id_rfid, status);
+
+};
+
+const deleteCowRFID = async (id_rfid) => {
+    await db.collection(db_banned).doc(id_rfid).delete();
+};
 module.exports = {
-    findCowById,
-    insertCow
+    findCow,
+    insertCowBanned,
+    findBanned,
+    deleteCowRFID
 };

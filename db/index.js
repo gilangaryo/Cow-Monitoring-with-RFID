@@ -10,4 +10,5 @@ initializeApp({
 const db = getFirestore();
 
 const db_cow = 'sapi';
-module.exports = { db, db_cow };
+const db_banned = 'banned';
+module.exports = { db, db_cow, db_banned };

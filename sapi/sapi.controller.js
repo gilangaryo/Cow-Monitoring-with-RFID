@@ -36,10 +36,11 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     try {
         const newCowData = req.body;
+        console.log("bodynya", req.body);
 
         const cow = await createCow(newCowData);
 
-        res.status(200)
+        res.status(201)
             .send({
                 data: cow,
                 message: "create cow success",
@@ -53,9 +54,11 @@ router.delete("/:id", async (req, res) => {
     try {
         const cowId = req.params.id;
 
-        await deleteCowById(cowId);
+        const hasil = await deleteCowById(cowId);
 
-        res.status(200).send("cow deleted");
+        res.status(200).send({
+            message: "cow delete success",
+        });
     } catch (error) {
         res.status(400).send(error.message);
     }

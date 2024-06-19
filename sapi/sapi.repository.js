@@ -36,7 +36,9 @@ const insertCow = async (cowData) => {
         berat: cowData.berat,
         harga: cowData.harga,
         status: true,
+        created_time: new Date()
     });
+
     const uid = cow.id;
     await db.collection(db_cow).doc(uid).update({
         uid: uid,
@@ -51,7 +53,8 @@ const deleteCow = async (id) => {
 
 const editCow = async (id, cowData) => {
     const cow = await db.collection(db_cow).doc(id).update(
-        cowData);
+        cowData
+    );
 
     return cow;
 };
